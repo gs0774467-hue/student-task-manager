@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Task Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><i class="fa-solid fa-graduation-cap"></i><span>Student Task Manager</span></div>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="nav-item active" data-view="dashboard"><i class="fa-solid fa-table-columns"></i>Dashboard</button>
+      <button class="nav-item" data-view="all"><i class="fa-solid fa-list-check"></i>All Tasks</button>
+      <button class="nav-item" data-view="pending"><i class="fa-solid fa-hourglass-half"></i>Pending Tasks</button>
+      <button class="nav-item" data-view="completed"><i class="fa-solid fa-circle-check"></i>Completed Tasks</button>
+      <button class="nav-item" data-view="today"><i class="fa-solid fa-sun"></i>Today's Tasks</button>
+      <button class="nav-item" data-view="upcoming"><i class="fa-solid fa-calendar-days"></i>Upcoming Deadlines</button>
+      <button class="nav-item" data-view="settings"><i class="fa-solid fa-gear"></i>Settings</button>
+    </nav>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+
+  <div class="main-wrap">
+    <!-- ===== HEADER ===== -->
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+      <div class="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="searchInput" placeholder="Search tasks by title or description" aria-label="Search tasks">
+      </div>
+      <span class="date-chip" id="todayDate"></span>
+      <button class="icon-btn" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span class="dot"></span></button>
+      <div class="profile"><span class="avatar">S</span><span class="profile-name">Student</span></div>
+    </header>
+
+    <main class="content">
+      <div class="page-head">
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Your tasks and deadlines at a glance.</p>
+        </div>
+        <button class="btn primary" id="addTaskBtn"><i class="fa-solid fa-plus"></i>Add task</button>
+      </div>
+
+      <!-- Dashboard-only: stats, progress, upcoming -->
+      <section id="dashboardSection">
+        <div class="stats">
+          <article class="card stat"><i class="fa-solid fa-layer-group s-total"></i><div><span id="statTotal">0</span><p>Total Tasks</p></div></article>
+          <article class="card stat"><i class="fa-solid fa-check-double s-done"></i><div><span id="statCompleted">0</span><p>Completed Tasks</p></div></article>
+          <article class="card stat"><i class="fa-solid fa-clock s-pending"></i><div><span id="statPending">0</span><p>Pending Tasks</p></div></article>
+          <article class="card stat"><i class="fa-solid fa-triangle-exclamation s-overdue"></i><div><span id="statOverdue">0</span><p>Overdue Tasks</p></div></article>
+        </div>
+        <div class="two-col">
+          <article class="card">
+            <h2>Task progress</h2>
+            <div class="progress-top"><strong id="progressPercent">0%</strong><span id="progressText">0 completed, 0 pending</span></div>
+            <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="progressBarWrap"><div class="progress-fill" id="progressFill"></div></div>
+          </article>
+          <article class="card">
+            <h2>Upcoming deadlines</h2>
+            <ul class="upcoming" id="upcomingList"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- Task list with filter / sort tools -->
+      <section id="taskSection">
+        <div class="toolbar">
+          <div class="chips" id="filterChips">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="pending">Pending</button>
+            <button class="chip" data-filter="completed">Completed</button>
+            <button class="chip" data-filter="high">High Priority</button>
+            <button class="chip" data-filter="medium">Medium Priority</button>
+            <button class="chip" data-filter="low">Low Priority</button>
+            <button class="chip" data-filter="overdue">Overdue</button>
+          </div>
+          <div class="selects">
+            <select id="categoryFilter" aria-label="Filter by category">
+              <option value="all">All categories</option>
+              <option>Assignment</option><option>Study</option><option>Personal</option><option>Project</option><option>Other</option>
+            </select>
+            <select id="sortSelect" aria-label="Sort tasks">
+              <option value="due">Sort: Due date</option>
+              <option value="priority">Sort: Priority</option>
+              <option value="recent">Sort: Recently added</option>
+            </select>
+          </div>
+        </div>
+        <div class="task-grid" id="taskList"></div>
+        <div class="empty" id="emptyState" hidden>
+          <i class="fa-regular fa-folder-open"></i>
+          <h3>No tasks here yet</h3>
+          <p>Add a task, or change your search and filters.</p>
+          <button class="btn primary" id="emptyAddBtn"><i class="fa-solid fa-plus"></i>Add task</button>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section id="settingsSection" hidden>
+        <article class="card settings">
+          <h2>Appearance</h2>
+          <div class="setting-row">
+            <div><strong>Theme</strong><p>Choose how the app looks.</p></div>
+            <select id="themeSelect" aria-label="Theme"><option value="light">Light</option><option value="dark">Dark</option></select>
+          </div>
+          <h2>Data</h2>
+          <div class="setting-row">
+            <div><strong>Load sample tasks</strong><p>Adds the demo tasks back to your list.</p></div>
+            <button class="btn" id="loadSampleBtn">Load samples</button>
+          </div>
+          <div class="setting-row">
+            <div><strong>Clear all tasks</strong><p>Permanently deletes every task.</p></div>
+            <button class="btn danger" id="clearAllBtn">Clear all</button>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===== ADD / EDIT TASK DIALOG ===== -->
+  <dialog id="taskDialog">
+    <form id="taskForm" novalidate>
+      <div class="dialog-head"><h2 id="dialogTitle">Add new task</h2><button type="button" class="icon-btn" id="closeDialog" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div>
+      <input type="hidden" id="taskId">
+      <label for="title">Task title *</label>
+      <input type="text" id="title" maxlength="80" placeholder="e.g. Finish HTML assignment">
+      <small class="error" id="titleError"></small>
+
+      <label for="description">Description</label>
+      <textarea id="description" rows="3" placeholder="Add any notes"></textarea>
+
+      <div class="form-row">
+        <div><label for="category">Category</label>
+          <select id="category"><option>Assignment</option><option>Study</option><option>Personal</option><option>Project</option><option>Other</option></select></div>
+        <div><label for="priority">Priority</label>
+          <select id="priority"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+      </div>
+      <div class="form-row">
+        <div><label for="dueDate">Due date *</label><input type="date" id="dueDate"><small class="error" id="dateError"></small></div>
+        <div><label for="status">Status</label>
+          <select id="status"><option value="pending">Pending</option><option value="completed">Completed</option></select></div>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn primary" id="saveBtn">Add task</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== CONFIRM DIALOG ===== -->
+  <dialog id="confirmDialog">
+    <h2 id="confirmTitle">Are you sure?</h2>
+    <p id="confirmMessage"></p>
+    <div class="dialog-actions">
+      <button class="btn" id="confirmNo">Cancel</button>
+      <button class="btn danger" id="confirmYes">Delete</button>
+    </div>
+  </dialog>
+
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
